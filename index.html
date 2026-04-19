@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Échecs 2 joueurs + IA ♟️🤖</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        h1 { margin-top: 20px; }
+
+        #turn {
+            margin: 10px;
+            font-size: 18px;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 65px);
+            grid-template-rows: repeat(8, 65px);
+            border: 4px solid white;
+        }
+
+        .cell {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            cursor: pointer;
+        }
+
+        .white { background: #eeeed2; color: black; }
+        .black { background: #769656; }
+
+        .selected { outline: 3px solid yellow; }
+    </style>
+</head>
+
+<body>
+
+<h1>♟️ Échecs 2 joueurs + IA</h1>
+<div id="turn">Tour : Blanc (Joueur)</div>
+
+<div id="board"></div>
+
+<script>
+
+const board = document.getElementById("board");
+const turnText = document.getElementById("turn");
+
+let selected = null;
+let turn = "white"; // blanc = joueur, noir = IA
+
+let pieces = [
+    ["♜","♞","♝","♛","♚","♝","♞","♜"],
+    ["♟","♟","♟","♟","♟","♟","♟","♟"],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["♙","♙","♙","♙","♙","♙","♙","♙"],
+    ["♖","♘","♗","♕","♔","♗","♘","♖"]
+];
+
+// créer plateau
+function drawBoard(){
+    board.innerHTML = "";
+
+    for(let i=0;i<8;i++){
+        for(let j=0;j<8;j++){
+
+            let cell = document.createElement("div");
+            cell.classList.add("cell");
+
+            if((i+j)%2===0) cell.classList.add("white");
+            else cell.classList.add("black");
+
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+
+            cell.innerText = pieces[i][j];
+
+            cell.onclick = () => play(cell);
+
+            board.appendChild(cell);
+        }
+    }
+}
+
+// joueur
+function play(cell){
+
+    if(turn !== "white") return; // IA joue pas clic
+
+    let r = cell.dataset.row;
+    let c = cell.dataset.col;
+
+    if(selected === null){
+
+        if(cell.innerText !== ""){
+            selected = cell;
+            cell.classList.add("selected");
+        }
+
+    } else {
+
+        cell.innerText = selected.innerText;
+        selected.innerText = "";
+
+        selected.classList.remove("selected");
+        selected = null;
+
+        turn = "black";
+        turnText.innerText = "Tour : Noir (IA)";
+
+        setTimeout(aiMove, 600);
+    }
+
+    drawBoard();
+}
+
+// IA très simple
+function aiMove(){
+
+    let moves = [];
+
+    for(let i=0;i<8;i++){
+        for(let j=0;j<8;j++){
+            if(pieces[i][j] !== "" && pieces[i][j].charCodeAt(0) > 9810){
+                moves.push({from:[i,j]});
+            }
+        }
+    }
+
+    let from = moves[Math.floor(Math.random()*moves.length)];
+
+    let targets = [];
+
+    for(let i=0;i<8;i++){
+        for(let j=0;j<8;j++){
+            targets.push([i,j]);
+        }
+    }
+
+    let to = targets[Math.floor(Math.random()*targets.length)];
+
+    if(from){
+
+        pieces[to[0]][to[1]] = pieces[from.from[0]][from.from[1]];
+        pieces[from.from[0]][from.from[1]] = "";
+
+    }
+
+    turn = "white";
+    turnText.innerText = "Tour : Blanc (Joueur)";
+
+    drawBoard();
+}
+
+drawBoard();
+
+</script>
+
+</body>
+</html>
